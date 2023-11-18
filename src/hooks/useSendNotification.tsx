@@ -2,10 +2,11 @@ import { useCallback, useState } from "react";
 import { useW3iAccount } from "@web3inbox/widget-react";
 import { INotification } from "./types";
 import { sendNotification } from "./fetchNotify";
-import { Toast } from "@ensdomains/thorin";
+import { useToast } from "@chakra-ui/react";
 
 function useSendNotification() {
   const [isSending, setIsSending] = useState<boolean>(false);
+  const toast = useToast();
   const { account } = useW3iAccount();
 
   const handleSendNotification = useCallback(
@@ -21,29 +22,24 @@ function useSendNotification() {
         });
         setIsSending(false);
 
-        <Toast
-          description="This is an example toast."
-          open={true}
-          onClose={() => {}}
-          title="Example Toast"
-          variant="desktop"
-        >
-          {success ? notification.title : "Message failed."}
-        </Toast>;
+        toast({
+          status: success ? "success" : "error",
+          position: "top",
+          variant: "subtle",
+          colorScheme: success ? "purple" : "red",
+          title: success ? notification.title : "Message failed.",
+        });
       } catch (error: any) {
         setIsSending(false);
         console.error({ sendNotificationError: error });
-
-        <Toast
-          description="error.cause"
-          open={true}
-          onClose={() => {}}
-          title="error.message"
-          variant="desktop"
-        ></Toast>;
+        toast({
+          status: "error",
+          title: error.message,
+          description: error.cause,
+        });
       }
     },
-    [account]
+    [toast, account]
   );
 
   return {

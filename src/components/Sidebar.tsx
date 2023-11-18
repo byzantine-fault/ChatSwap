@@ -95,15 +95,35 @@ const Sidebar = () => {
   const handleTestNotification = useCallback(async () => {
     if (isSubscribed) {
       handleSendNotification({
-        title: "GM Hacker",
-        body: "Hack it until you make it!",
+        title: "Test!",
+        body: "Test!",
         icon: `${window.location.origin}/WalletConnect-blue.svg`,
         url: window.location.origin,
         // ID retrieved from explorer api - Copy your notification type from WalletConnect Cloud and replace the default value below
-        type: "ba0e9ab1-e194-4780-8fc5-3c8abd9678e2",
+        type: "6c6a438b-d6d1-4c95-9440-312ed6780c78",
       });
     }
   }, [handleSendNotification, isSubscribed]);
+
+  useEffect(() => {
+    isConnected
+      ? isSubscribed &&
+        handleSendNotification({
+          title: "GM from ChatSwap!",
+          body: "See you!",
+          icon: `${window.location.origin}/WalletConnect-blue.svg`,
+          url: window.location.origin,
+          type: "9b791aa1-ea28-498b-8113-7259d1edc060",
+        })
+      : isSubscribed &&
+        handleSendNotification({
+          title: "See you!",
+          body: "See you!",
+          icon: `${window.location.origin}/WalletConnect-blue.svg`,
+          url: window.location.origin,
+          type: "b4732e4f-b26e-49ce-8629-4a3729c67f46",
+        });
+  }, [address, isConnected, isSubscribed]);
 
   return (
     <div className="scrollbar-trigger flex h-full w-full flex-1 items-start border-white/20 border-r">
