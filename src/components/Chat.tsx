@@ -171,7 +171,7 @@ const Chat = (props: any) => {
                       </button>
                     </div>
                   </div>
-                  <h1 className="text-2xl sm:text-4xl font-semibold text-center text-gray-200 dark:text-gray-900 flex gap-2 items-center justify-center h-screen">
+                  <h1 className="text-2xl sm:text-4xl font-semibold text-center text-gray-200 dark:text-gray-800 flex gap-2 items-center justify-center h-screen">
                     ChatSwap
                   </h1>
                 </div>
@@ -191,7 +191,7 @@ const Chat = (props: any) => {
                   </div>
                 </div>
               ) : null}
-              <div className="flex flex-col w-full py-2 flex-grow md:py-3 md:pl-4 relative border border-black/10 bg-white dark:border-gray-900/50 dark:text-white dark:bg-background rounded-md shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:shadow-[0_0_15px_rgba(0,0,0,0.10)]">
+              <div className="flex flex-col w-full py-2 flex-grow md:py-6 md:px-6 relative border border-black/10 bg-white dark:border-[#C1C7D0] dark:text-white dark:bg-gray-700 dark:opacity-80 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:shadow-[0_0_15px_rgba(0,0,0,0.10)]">
                 <textarea
                   ref={textAreaRef}
                   value={message}
@@ -216,7 +216,7 @@ const Chat = (props: any) => {
                 <button
                   disabled={isLoading || message?.length === 0}
                   onClick={sendMessage}
-                  className="absolute p-1 rounded-md bottom-1.5 md:bottom-2.5 bg-transparent disabled:bg-gray-500 right-1 md:right-2 disabled:opacity-40"
+                  className="absolute p-1 rounded-md bottom-1.5 md:bottom-6 bg-transparent disabled:bg-gray-500 right-1 md:right-6 disabled:opacity-40 "
                 >
                   <FiSend className="h-4 w-4 mr-1 text-white " />
                 </button>
