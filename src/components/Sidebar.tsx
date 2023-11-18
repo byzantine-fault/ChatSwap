@@ -2,67 +2,108 @@ import { Button, LockSVG } from "@ensdomains/thorin";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
 import { AiOutlineMessage, AiOutlinePlus } from "react-icons/ai";
 import { FiMessageSquare } from "react-icons/fi";
-import { useAccount, useEnsName, useSignMessage } from "wagmi";
+import { useAccount, usePublicClient, useSignMessage } from "wagmi";
 import {
   useManageSubscription,
-  useSubscription,
   useW3iAccount,
   useInitWeb3InboxClient,
-  useMessages,
 } from "@web3inbox/widget-react";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import useSendNotification from "@/hooks/useSendNotification";
+
+const projectId = process.env.NEXT_PUBLIC_PROJECT_ID as string;
+const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN as string;
 
 const Sidebar = () => {
-  const { address, isConnected } = useAccount();
-  const { data: ensName } = useEnsName({ address });
+  const { isConnected } = useAccount();
   const { open, close } = useWeb3Modal();
-  const { signMessageAsync } = useSignMessage();
 
-  // Initialize the Web3Inbox SDK
-  const isReady = useInitWeb3InboxClient({
-    // The project ID and domain you setup in the Domain Setup section
-    projectId: "484ba4de0a4e19e8c1c8d5b289e9631c",
-    domain: "chatswap.vercel.app",
-
-    // Allow localhost development with "unlimited" mode.
-    // This authorizes this dapp to control notification subscriptions for all domains (including `app.example.com`), not just `window.location.host`
-    isLimited: false,
+  /** Web3Inbox SDK hooks **/
+  const isW3iInitialized = useInitWeb3InboxClient({
+    projectId,
+    domain: appDomain,
+    isLimited: process.env.NODE_ENV == "production",
   });
+  const {
+    account,
+    setAccount,
+    register: registerIdentity,
+    identityKey,
+  } = useW3iAccount();
+  const {
+    subscribe,
+    unsubscribe,
+    isSubscribed,
+    isSubscribing,
+    isUnsubscribing,
+  } = useManageSubscription(account);
 
-  const { account, setAccount, isRegistered, isRegistering, register } =
-    useW3iAccount();
+  const { address } = useAccount({
+    onDisconnect: () => {
+      setAccount("");
+    },
+  });
+  const { signMessageAsync } = useSignMessage();
+  const wagmiPublicClient = usePublicClient();
+
+  const { handleSendNotification, isSending } = useSendNotification();
+  const [lastBlock, setLastBlock] = useState<string>();
+  const [isBlockNotificationEnabled, setIsBlockNotificationEnabled] =
+    useState(true);
+
+  const signMessage = useCallback(
+    async (message: string) => {
+      const res = await signMessageAsync({
+        message,
+      });
+
+      return res as string;
+    },
+    [signMessageAsync]
+  );
+
+  // We need to set the account as soon as the user is connected
   useEffect(() => {
-    if (!address) return;
-    // Convert the address into a CAIP-10 blockchain-agnostic account ID and update the Web3Inbox SDK with it
+    if (!Boolean(address)) return;
     setAccount(`eip155:1:${address}`);
-  }, [address, setAccount]);
+  }, [signMessage, address, setAccount]);
 
-  // In order to authorize the dapp to control subscriptions, the user needs to sign a SIWE message which happens automatically when `register()` is called.
-  // Depending on the configuration of `domain` and `isLimited`, a different message is generated.
-  const performRegistration = useCallback(async () => {
-    if (!address) return;
+  const handleRegistration = useCallback(async () => {
+    if (!account) return;
     try {
-      await register((message) => signMessageAsync({ message }));
+      await registerIdentity(signMessage);
     } catch (registerIdentityError) {
-      alert(registerIdentityError);
+      console.error({ registerIdentityError });
     }
-  }, [signMessageAsync, register, address]);
+  }, [signMessage, registerIdentity, account]);
 
   useEffect(() => {
-    // Register even if an identity key exists, to account for stale keys
-    performRegistration();
-  }, [performRegistration]);
+    // register even if an identity key exists, to account for stale keys
+    handleRegistration();
+  }, [handleRegistration]);
 
-  const { isSubscribed, isSubscribing, subscribe } = useManageSubscription();
+  const handleSubscribe = useCallback(async () => {
+    if (!identityKey) {
+      await handleRegistration();
+    }
 
-  const performSubscribe = useCallback(async () => {
-    // Register again just in case
-    await performRegistration();
     await subscribe();
-  }, [subscribe, isRegistered]);
+  }, [subscribe, identityKey]);
 
-  const { subscription } = useSubscription();
-  const { messages } = useMessages();
+  // handleSendNotification will send a notification to the current user and includes error handling.
+  // If you don't want to use this hook and want more flexibility, you can use sendNotification.
+  const handleTestNotification = useCallback(async () => {
+    if (isSubscribed) {
+      handleSendNotification({
+        title: "GM Hacker",
+        body: "Hack it until you make it!",
+        icon: `${window.location.origin}/WalletConnect-blue.svg`,
+        url: window.location.origin,
+        // ID retrieved from explorer api - Copy your notification type from WalletConnect Cloud and replace the default value below
+        type: "ba0e9ab1-e194-4780-8fc5-3c8abd9678e2",
+      });
+    }
+  }, [handleSendNotification, isSubscribed]);
 
   return (
     <div className="scrollbar-trigger flex h-full w-full flex-1 items-start border-white/20 border-r">
@@ -102,40 +143,37 @@ const Sidebar = () => {
           <BiLinkExternal className="h-4 w-4" />
           Get help
         </a> */}
-        {!isReady && !address && !isRegistered ? (
-          <div>
-            To manage notifications, sign and register an identity key:&nbsp;
-            <Button onClick={performRegistration} disabled={isRegistering}>
-              {isRegistering ? "Signing..." : "Sign"}
-            </Button>
-          </div>
+        {isSubscribed ? (
+          <Button
+            onClick={handleTestNotification}
+            disabled={!isW3iInitialized}
+            loading={isSending}
+          >
+            {isSending ? "sending..." : " Send test notification"}
+          </Button>
         ) : (
-          <>
-            {!isSubscribed ? (
-              <>
-                <Button onClick={performSubscribe} disabled={isSubscribing}>
-                  {isSubscribing
-                    ? "Subscribing..."
-                    : "Subscribe to notifications"}
-                </Button>
-              </>
-            ) : (
-              <>
-                <div>You are subscribed</div>
-                <div>Subscription: {JSON.stringify(subscription)}</div>
-                <div>Messages: {JSON.stringify(messages)}</div>
-              </>
-            )}
-          </>
+          <Button
+            onClick={handleSubscribe}
+            loading={isSubscribing}
+            disabled={!Boolean(address) || !Boolean(account)}
+          >
+            {isSubscribing ? "Subscribing..." : "Subscribe"}
+          </Button>
         )}
         {/* <div className="flex py-3 px-3 items-center gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm">
           <MdLogin className="h-4 w-4" />
           {isConnected ? "Disconnect Wallet" : "Connect Wallat"}
         </div> */}
         <div style={{ width: "240px" }}>
-          <Button prefix={<LockSVG />} onClick={() => open()}>
-            {isConnected ? (!!ensName ? ensName : address) : "Connect Wallat"}
-          </Button>
+          {address && isConnected ? (
+            <Button prefix={<LockSVG />} onClick={() => open()}>
+              Disconnect Wallet
+            </Button>
+          ) : (
+            <Button prefix={<LockSVG />} onClick={() => open()}>
+              Connect Wallat
+            </Button>
+          )}
         </div>
       </nav>
     </div>
