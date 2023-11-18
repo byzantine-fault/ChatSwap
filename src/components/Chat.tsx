@@ -7,6 +7,7 @@ import useAutoResizeTextArea from "@/hooks/useAutoResizeTextArea";
 import Message from "./Message";
 import { DEFAULT_OPENAI_MODEL } from "@/shared/Constants";
 import { useAccount } from "wagmi";
+import Image from "next/image";
 
 const Chat = (props: any) => {
   const { isConnected } = useAccount();
@@ -108,7 +109,7 @@ const Chat = (props: any) => {
   };
 
   return (
-    <div className="flex max-w-full flex-1 flex-col">
+    <div className="flex max-w-full flex-1 flex-col relative">
       <div className="sticky top-0 z-10 flex items-center border-b border-white/20 bg-background pl-1 pt-1 text-gray-200 sm:pl-3 md:hidden">
         <button
           type="button"
@@ -125,7 +126,7 @@ const Chat = (props: any) => {
       </div>
       <div className="relative h-full w-full transition-width flex flex-col overflow-hidden items-stretch flex-1">
         <div className="flex-1 overflow-hidden">
-          <div className="react-scroll-to-bottom--css-ikyem-79elbk h-full dark:bg-bg-stars">
+          <div className="react-scroll-to-bottom--css-ikyem-79elbk h-full dark:bg-bg-stars z-40">
             <div className="react-scroll-to-bottom--css-ikyem-1n7m0yu">
               {!showEmptyChat && conversation.length > 0 ? (
                 <div className="flex flex-col items-center text-sm bg-background">
@@ -179,7 +180,8 @@ const Chat = (props: any) => {
             </div>
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 w-full border-t md:border-t-0 dark:border-white/20 md:border-transparent md:dark:border-transparent md:bg-vert-light-gradient bg-white dark:bg-background md:!bg-transparent dark:md:bg-vert-rainbow-gradient pt-2">
+
+        <div className="absolute  z-50 bottom-0 left-0 w-full border-t md:border-t-0 dark:border-white/20 md:border-transparent md:dark:border-transparent md:bg-vert-light-gradient bg-white dark:bg-background md:!bg-transparent dark:md:bg-background pt-2">
           <form className="stretch mx-2 flex flex-row gap-3 last:mb-2 md:mx-4 md:last:mb-6 lg:mx-auto lg:max-w-2xl xl:max-w-3xl">
             <div className="relative flex flex-col h-full flex-1 items-stretch md:flex-col">
               {errorMessage ? (
@@ -228,6 +230,19 @@ const Chat = (props: any) => {
             </span> */}
           </div>
         </div>
+      </div>
+      <div className="absolute bottom-0">
+        <Image
+          src="/images/bg-bottom.png"
+          height={900}
+          width={2000}
+          alt="Your Image"
+          style={{
+            userSelect: "none",
+            WebkitMaskImage:
+              "linear-gradient(to top, #000 0%, transparent 80%, transparent 100%)",
+          }}
+        />
       </div>
     </div>
   );
