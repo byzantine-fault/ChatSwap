@@ -1,12 +1,39 @@
 import { HiUser } from "react-icons/hi";
-import { TbCursorText } from "react-icons/tb";
 import { IoLogoIonitron } from "react-icons/io5";
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Divider,
+  Image,
+  Link,
+  Skeleton,
+} from "@nextui-org/react";
+import { use1inch } from "@/hooks/use1inch";
+import { useEffect } from "react";
 
 const Message = (props: any) => {
   const { message } = props;
   const { role, content: text } = message;
 
   const isUser = role === "user";
+
+  const fromTokenAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+  const toTokenAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+
+  const { getQuote } = use1inch({
+    fromTokenAddress,
+    toTokenAddress,
+    amount: text?.amount,
+  });
+
+  useEffect(() => {
+    if (text) {
+      const res = getQuote();
+      console.log(res);
+    }
+  });
 
   return (
     <div
@@ -41,9 +68,48 @@ const Message = (props: any) => {
               <div className="min-h-20 flex flex-col items-start gap-4 whitespace-pre-wrap break-words">
                 <div className="markdown prose w-full break-words dark:prose-invert dark">
                   {!isUser && text === null ? (
-                    <TbCursorText className="h-6 w-6 animate-pulse" />
+                    <Skeleton className="w-3/5 rounded-lg">
+                      <div className="h-6 w-2/5 rounded-lg bg-default-200"></div>
+                    </Skeleton>
                   ) : (
-                    <p>{text}</p>
+                    <>
+                      {typeof text === "string" ? (
+                        <p>{text}</p>
+                      ) : (
+                        <Card className="max-w-[400px]">
+                          <CardHeader className="flex gap-3">
+                            <Image
+                              alt="nextui logo"
+                              height={40}
+                              radius="sm"
+                              src="https://avatars.githubusercontent.com/u/86160567?s=200&v=4"
+                              width={40}
+                            />
+                            <div className="flex flex-col">
+                              <p className="text-md">UniSwap v2</p>
+                              <p className="text-small text-default-500">
+                                uniswap.org
+                              </p>
+                            </div>
+                          </CardHeader>
+                          <Divider />
+                          <CardBody>
+                            <p> fromToken : {text.fromToken}</p>
+                            <p> toToken : {text.toToken}</p>
+                            <p> amount : {text.amount}</p>
+                          </CardBody>
+                          <CardFooter>
+                            <Link
+                              isExternal
+                              showAnchorIcon
+                              href="https://github.com/nextui-org/nextui"
+                            >
+                              tx explorer
+                            </Link>
+                          </CardFooter>
+                        </Card>
+                      )}
+                    </>
                   )}
                 </div>
               </div>

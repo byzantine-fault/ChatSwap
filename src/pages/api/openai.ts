@@ -79,7 +79,7 @@ export default async function handler(
             description: "to Token Symbol",
           },
           amount: {
-            type: "number",
+            type: "string",
             description: "amount",
           },
         },
@@ -103,7 +103,7 @@ export default async function handler(
         return await get(args["id"]);
 
       case "swap":
-        return await swap(args["id"]);
+        return await swap(args["fromToken"], args["toToken"], args["amount"]);
 
       default:
         throw new Error("No function found");
@@ -119,28 +119,21 @@ export default async function handler(
       },
       userMessages[userMessages.length - 1],
     ];
-    console.log("userMessages", userMessages);
-    console.log(messages[0]);
-    console.log(messages[1]);
-    console.log();
 
-    while (true) {
-      const completion = await openai.chat.completions.create({
-        model: model.id,
-        messages,
-        functions: functions,
-      });
+    // while (true) {
+    const completion = await openai.chat.completions.create({
+      model: model.id,
+      messages,
+      functions: functions,
+    });
 
-      const message = completion.choices[0]!.message;
-      messages.push(message);
-      console.log(message);
+    const message = completion.choices[0]!.message;
+    messages.push(message);
+
+    if (!message.function_call) {
       res.status(200).json(messages[messages.length - 1]);
-
-      // If there is no function call, we're done and can exit this loop
-      if (!message.function_call) {
-        return;
-      }
-
+      return;
+    } else {
       // If there is a function call, we generate a new message with the role 'function'.
       const result = await callFunction(message.function_call);
       const newMessage = {
@@ -149,16 +142,17 @@ export default async function handler(
         content: result,
       };
       messages.push(newMessage);
-
-      console.log(newMessage);
-      console.log("-----------------------");
-      console.log("messages : ", messages);
+      console.log("newMessage : ", newMessage);
+      res.status(200).json(newMessage);
     }
+    console.log("all messages : ", messages);
+    // }
   } catch (error) {
     console.error(error);
     res.status(500).json({
       error: "An error occurred during ping to OpenAI. Please try again.",
     });
+    return;
   }
 }
 
@@ -201,6 +195,16 @@ async function get(id: string) {
   return db.find((item) => item.id === id)!;
 }
 
-async function swap(id: string) {
-  return "swap done";
+async function swap(fromToken: string, toToken: string, amount: string) {
+  try {
+    return {
+      fromToken: fromToken,
+      toToken: toToken,
+      amount: amount,
+    };
+  } catch (error) {
+    console.log(error);
+  }
+
+  return "call swap function";
 }

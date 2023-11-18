@@ -56,7 +56,6 @@ const Chat = (props: any) => {
     setConversation([
       ...conversation,
       { content: message, role: "user" },
-      // { content: null, role: "system" },
       { content: null, role: "assistant" },
     ]);
 
@@ -83,8 +82,7 @@ const Chat = (props: any) => {
         setConversation([
           ...conversation,
           { content: message, role: "user" },
-          // { content: data.message, role: "system" },
-          { content: data.content, role: "assistant" },
+          { content: data.content, role: data.role },
         ]);
       } else {
         console.error(response);
