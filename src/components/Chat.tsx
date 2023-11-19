@@ -10,7 +10,7 @@ import { useAccount } from "wagmi";
 import Image from "next/image";
 
 const Chat = (props: any) => {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
 
   const { toggleComponentVisibility } = props;
 
@@ -105,6 +105,8 @@ const Chat = (props: any) => {
       e.preventDefault();
     }
   };
+
+  //--------------------------------------------
 
   return (
     <div className="flex max-w-full flex-1 flex-col relative">
@@ -209,7 +211,7 @@ const Chat = (props: any) => {
                   className="m-0 w-full resize-none border-0 bg-transparent p-0 pr-7 focus:ring-0 focus-visible:ring-0 dark:bg-transparent pl-2 md:pl-0"
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyDown={handleKeypress}
-                  // disabled={!isConnected}
+                  disabled={!isConnected}
                 ></textarea>
                 <button
                   disabled={isLoading || message?.length === 0}

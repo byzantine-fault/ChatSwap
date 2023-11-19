@@ -1,8 +1,8 @@
+import { useToast } from "@chakra-ui/react";
 import { useCallback, useState } from "react";
 import { useW3iAccount } from "@web3inbox/widget-react";
 import { INotification } from "./types";
 import { sendNotification } from "./fetchNotify";
-import { useToast } from "@chakra-ui/react";
 
 function useSendNotification() {
   const [isSending, setIsSending] = useState<boolean>(false);

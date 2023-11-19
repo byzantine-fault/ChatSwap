@@ -1,17 +1,33 @@
 import { HiUser } from "react-icons/hi";
 import { IoLogoIonitron } from "react-icons/io5";
 import {
+  Button,
   Card,
   CardBody,
   CardFooter,
   CardHeader,
   Divider,
   Image,
-  Link,
   Skeleton,
+  Spinner,
 } from "@nextui-org/react";
-import { use1inch } from "@/hooks/use1inch";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useToast } from "@chakra-ui/react";
+import TOKENLIST from "../tokenList.json";
+import {
+  useAccount,
+  useBalance,
+  useNetwork,
+  useSendTransaction,
+  useWaitForTransaction,
+} from "wagmi";
+
+import swapTokens from "@/utils/swapToken";
+import formatBalance from "@/utils/formatBalance";
+import approveTrasaction from "@/utils/approveTransaction";
+import checkAllowance from "@/utils/checkAllowance";
+import getQuote from "@/utils/getQuote";
+import { fetchBalance } from "wagmi/actions";
 
 const Message = (props: any) => {
   const { message } = props;
@@ -19,21 +35,158 @@ const Message = (props: any) => {
 
   const isUser = role === "user";
 
-  const fromTokenAddress = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
-  const toTokenAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+  const { address, isConnected } = useAccount();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [sellToken, setSellToken] = useState(1);
+  const [sellAmount, setSellAmount] = useState(1);
+  const [buyToken, setBuyToken] = useState(2);
+  const [buyAmount, setBuyAmount] = useState(1);
 
-  const { getQuote } = use1inch({
-    fromTokenAddress,
-    toTokenAddress,
-    amount: text?.amount,
-  });
+  const toast = useToast();
+
+  const { chain } = useNetwork();
 
   useEffect(() => {
-    if (text) {
-      const res = getQuote();
-      console.log(res);
+    if (typeof text !== "string" && text?.fromToken) {
+      setSellToken(
+        TOKENLIST.findIndex((token) => token.ticker === text.fromToken)
+      );
+      setBuyToken(
+        TOKENLIST.findIndex((token) => token.ticker === text.toToken)
+      );
+      setSellAmount(Number(text.amount));
     }
+  }, []);
+
+  useEffect(() => {
+    setBuyAmount(0);
+  }, [sellAmount, sellToken, buyToken]);
+
+  const { data: balance } = useBalance({
+    address: address,
   });
+
+  const { data, sendTransaction, error } = useSendTransaction();
+
+  const { isLoading: loading, isSuccess } = useWaitForTransaction({
+    hash: data?.hash,
+  });
+
+  if (error) {
+    console.log(error, "error");
+  }
+
+  if (data) {
+    console.log(data, "data");
+  }
+
+  async function checkBalance() {
+    if (sellToken === 0) {
+      if (!(parseFloat(balance?.formatted!) > sellAmount)) {
+        toast({
+          position: "top-right",
+          title: "Insufficient balance",
+        });
+        return false;
+      }
+    } else {
+      const data = await fetchBalance({
+        address: address!,
+        token: TOKENLIST[sellToken].address as any,
+      });
+      if (!(parseFloat(data?.formatted!) > sellAmount)) {
+        toast({
+          position: "top-right",
+          title: "Insufficient balance",
+        });
+        return false;
+      }
+    }
+  }
+
+  async function handleTransaction() {
+    if (buyToken === undefined || !address) return;
+    console.log(sellAmount, "sell");
+    const transaction = await swapTokens(
+      TOKENLIST[sellToken].address,
+      TOKENLIST[buyToken].address,
+      formatBalance(sellAmount, sellToken),
+      address,
+      "1",
+      chain?.id as number
+    );
+    console.log(transaction);
+    if (transaction.tx) {
+      sendTransaction({
+        to: transaction.tx.to,
+        value: BigInt(transaction.tx.value),
+        data: transaction.tx.data,
+      });
+    }
+  }
+
+  async function handleApproval() {
+    const approve = await approveTrasaction(
+      TOKENLIST[sellToken].address,
+      chain?.id as number
+    );
+    console.log(approve);
+    if (approve.data) {
+      sendTransaction({
+        to: approve.to,
+        data: approve.data,
+      });
+    }
+  }
+
+  async function handleSwap() {
+    if (address) {
+      setIsLoading(true);
+      // const hasBalance = await checkBalance();
+      // if (!hasBalance) {
+      //   setIsLoading(false);
+      //   return;
+      // }
+      const allowance = await checkAllowance(
+        TOKENLIST[sellToken].address,
+        address,
+        chain?.id as number
+      );
+      console.log(allowance);
+      if (allowance?.allowance === "0") {
+        await handleApproval();
+      }
+      handleTransaction();
+      setIsLoading(false);
+      if (isSuccess) {
+        toast({
+          title: "Swapped successfully 🎉",
+          position: "top-right",
+        });
+      }
+    }
+  }
+
+  async function handleQuote() {
+    if (buyToken === undefined || sellAmount === 0) return;
+    setIsLoading(true);
+    const quote = await getQuote(
+      TOKENLIST[sellToken].address,
+      TOKENLIST[buyToken].address,
+      sellAmount,
+      chain?.id as number
+    );
+    console.log("quote : ", quote);
+    if (quote.toAmount) {
+      setBuyAmount(Number(quote.toAmount));
+    } else {
+      toast({
+        title: quote.description,
+        position: "top-right",
+      });
+    }
+    setIsLoading(false);
+  }
 
   return (
     <div
@@ -76,7 +229,7 @@ const Message = (props: any) => {
                       {typeof text === "string" ? (
                         <p>{text}</p>
                       ) : (
-                        <Card className="max-w-[400px]">
+                        <Card className="max-w-[400px] z-50">
                           <CardHeader className="flex gap-3">
                             <Image
                               alt="nextui logo"
@@ -99,13 +252,19 @@ const Message = (props: any) => {
                             <p> amount : {text.amount}</p>
                           </CardBody>
                           <CardFooter>
-                            <Link
-                              isExternal
-                              showAnchorIcon
-                              href="https://github.com/nextui-org/nextui"
-                            >
-                              tx explorer
-                            </Link>
+                            <Button onClick={handleSwap} fullWidth>
+                              {buyAmount ? (
+                                isLoading ? (
+                                  <Spinner />
+                                ) : (
+                                  <p>Swap</p>
+                                )
+                              ) : isLoading ? (
+                                <Spinner />
+                              ) : (
+                                <p>Get Quote</p>
+                              )}
+                            </Button>
                           </CardFooter>
                         </Card>
                       )}

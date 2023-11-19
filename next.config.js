@@ -8,6 +8,7 @@ const nextConfig = {
     APP_NAME: process.env.APP_NAME,
     ONE_INCH_API_KEY: process.env.ONE_INCH_API_KEY,
     COINMARKETCAP_API_KEY: process.env.COINMARKETCAP_API_KEY,
+    MORALIS_KEY: process.env.MORALIS_KEY,
   },
 
   experimental: {

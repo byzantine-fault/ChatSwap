@@ -10,6 +10,7 @@ import {
 } from "@web3inbox/widget-react";
 import { useCallback, useEffect, useState } from "react";
 import useSendNotification from "@/hooks/useSendNotification";
+import axios from "axios";
 
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID as string;
 const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN as string;
@@ -17,6 +18,7 @@ const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN as string;
 const Sidebar = () => {
   const { isConnected } = useAccount();
   const { open, close } = useWeb3Modal();
+  const [mount, setMount] = useState(false);
 
   /** Web3Inbox SDK hooks **/
   const isW3iInitialized = useInitWeb3InboxClient({
@@ -50,6 +52,10 @@ const Sidebar = () => {
   const [lastBlock, setLastBlock] = useState<string>();
   const [isBlockNotificationEnabled, setIsBlockNotificationEnabled] =
     useState(true);
+
+  useEffect(() => {
+    setMount(true);
+  }, []);
 
   const signMessage = useCallback(
     async (message: string) => {
@@ -95,14 +101,21 @@ const Sidebar = () => {
   const handleTestNotification = useCallback(async () => {
     if (isSubscribed) {
       handleSendNotification({
-        title: "Test!",
-        body: "Test!",
+        title: "GM from ChatSwap!",
+        body: "GM from ChatSwap!",
         icon: `${window.location.origin}/WalletConnect-blue.svg`,
         url: window.location.origin,
         // ID retrieved from explorer api - Copy your notification type from WalletConnect Cloud and replace the default value below
         type: "6c6a438b-d6d1-4c95-9440-312ed6780c78",
       });
     }
+
+    axios.get(`/api/1inch/fetchTokens?networkId=1`).then(({ data }) => {
+      console.log(data);
+      console.log(
+        data.tokens.find((token: any) => token.symbol === "USDC").address
+      );
+    });
   }, [handleSendNotification, isSubscribed]);
 
   useEffect(() => {
@@ -169,7 +182,7 @@ const Sidebar = () => {
             disabled={!isW3iInitialized}
             loading={isSending}
           >
-            {isSending ? "sending..." : " Send test notification"}
+            {isSending ? "sending..." : " Send notification"}
           </Button>
         ) : (
           <Button
@@ -185,7 +198,7 @@ const Sidebar = () => {
           {isConnected ? "Disconnect Wallet" : "Connect Wallat"}
         </div> */}
         <div style={{ width: "240px" }}>
-          {address && isConnected ? (
+          {mount && isConnected ? (
             <Button prefix={<LockSVG />} onClick={() => open()}>
               Disconnect Wallet
             </Button>
