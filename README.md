@@ -1,4 +1,4 @@
-# Chatswap: Simplified DeFi DEX Service Access via Chat
+# Chatswap: Intent-based UI for Intent-based DeFi DEX via Chat
 
 ![chatswap](https://github.com/byzantine-fault/ChatSwap/assets/64685759/7637ab10-aa9d-4720-8d82-02485c2d74a1)
 
