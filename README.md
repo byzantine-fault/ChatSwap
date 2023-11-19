@@ -1,6 +1,6 @@
 # ChatSwap: Intent-based UI for Intent-based DeFi DEX via Chat
 
-![ChatSwap](https://github.com/byzantine-fault/ChatSwap/assets/64685759/7637ab10-aa9d-4720-8d82-02485c2d74a1)
+![ChatSwap](https://github.com/byzantine-fault/ChatSwap/assets/64685759/320dda65-a6f6-4870-8ebc-ec84a1670790)
 
 ChatSwap is a conversational interface leveraging the power of OpenAI's ChatGPT API to facilitate seamless access to various decentralized finance (DeFi) decentralized exchange (DEX) services. Users can interact through chat to explore optimal prices across multiple DEX platforms and engage in decentralized trading effortlessly.
 
