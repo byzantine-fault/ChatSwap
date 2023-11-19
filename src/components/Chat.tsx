@@ -203,15 +203,11 @@ const Chat = (props: any) => {
                     overflowY: "hidden",
                   }}
                   // rows={1}
-                  placeholder={
-                    isConnected
-                      ? "Send a message..."
-                      : "Connect Wallet Please..."
-                  }
+                  placeholder={"Send a message..."}
                   className="m-0 w-full resize-none border-0 bg-transparent p-0 pr-7 focus:ring-0 focus-visible:ring-0 dark:bg-transparent pl-2 md:pl-0"
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyDown={handleKeypress}
-                  disabled={!isConnected}
+                  // disabled={!isConnected}
                 ></textarea>
                 <button
                   disabled={isLoading || message?.length === 0}

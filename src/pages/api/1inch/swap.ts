@@ -12,7 +12,7 @@ export default async function handler(
   const chainId = req.query.chainId;
   try {
     const response = await fetch(
-      `https://api-dzap.1inch.io/v5.2/${chainId}/swap?src=${src}&dst=${dst}&amount=${amount}&from=${from}&slippage=${slippage}`,
+      `https://api-dzap.1inch.io/v5.2/${chainId}/swap?src=${src}&dst=${dst}&amount=${amount}&from=${from}&slippage=${slippage}&includeProtocols=true`,
       {
         method: "GET",
         headers: {
@@ -21,7 +21,10 @@ export default async function handler(
         },
       }
     );
+
     const data = await response.json();
+    console.log(data);
+
     return res.status(200).json({ data });
   } catch (err) {
     return res.status(500).json({ error: err });

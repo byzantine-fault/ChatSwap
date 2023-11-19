@@ -10,7 +10,7 @@ export default async function handler(
   const chainId = req.query.chainId;
   try {
     const response = await fetch(
-      `https://api.1inch.dev/swap/v5.2/${chainId}/quote?src=${src}&dst=${dst}&amount=${amount}`,
+      `https://api.1inch.dev/swap/v5.2/${chainId}/quote?src=${src}&dst=${dst}&amount=${amount}&includeProtocols=true`,
       {
         method: "GET",
         headers: {
@@ -20,6 +20,7 @@ export default async function handler(
       }
     );
     const data = await response.json();
+    console.log(data);
     return res.status(200).json({ data });
   } catch (err) {
     return res.status(500).json({ error: err });

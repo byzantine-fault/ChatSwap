@@ -41,6 +41,7 @@ const Message = (props: any) => {
   const [sellAmount, setSellAmount] = useState(1);
   const [buyToken, setBuyToken] = useState(2);
   const [buyAmount, setBuyAmount] = useState(1);
+  const [protocolInfo, setProtocolInfo] = useState<any>();
 
   const toast = useToast();
 
@@ -56,11 +57,11 @@ const Message = (props: any) => {
       );
       setSellAmount(Number(text.amount));
     }
-  }, []);
+  }, [text]);
 
-  useEffect(() => {
-    setBuyAmount(0);
-  }, [sellAmount, sellToken, buyToken]);
+  // useEffect(() => {
+  //   setBuyAmount(0);
+  // }, [sellAmount, sellToken, buyToken]);
 
   const { data: balance } = useBalance({
     address: address,
@@ -116,6 +117,8 @@ const Message = (props: any) => {
       chain?.id as number
     );
     console.log(transaction);
+    console.log(transaction.protocols);
+    setProtocolInfo(transaction.protocols && transaction.protocols[0][0][0]);
     if (transaction.tx) {
       sendTransaction({
         to: transaction.tx.to,
@@ -239,10 +242,11 @@ const Message = (props: any) => {
                               width={40}
                             />
                             <div className="flex flex-col">
-                              <p className="text-md">UniSwap v2</p>
-                              <p className="text-small text-default-500">
-                                uniswap.org
-                              </p>
+                              {!!protocolInfo ? (
+                                <p className="text-md">{protocolInfo?.name} </p>
+                              ) : (
+                                <p className="text-md">Searching Protocol.. </p>
+                              )}
                             </div>
                           </CardHeader>
                           <Divider />

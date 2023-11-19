@@ -120,15 +120,15 @@ const Sidebar = () => {
 
   useEffect(() => {
     isConnected
-      ? isSubscribed &&
-        handleSendNotification({
-          title: "GM from ChatSwap!",
-          body: "See you!",
-          icon: `${window.location.origin}/WalletConnect-blue.svg`,
-          url: window.location.origin,
-          type: "9b791aa1-ea28-498b-8113-7259d1edc060",
-        })
-      : isSubscribed &&
+      ? isSubscribed && null
+      : // handleSendNotification({
+        //   title: "GM from ChatSwap!",
+        //   body: "See you!",
+        //   icon: `${window.location.origin}/WalletConnect-blue.svg`,
+        //   url: window.location.origin,
+        //   type: "9b791aa1-ea28-498b-8113-7259d1edc060",
+        // })
+        isSubscribed &&
         handleSendNotification({
           title: "See you!",
           body: "See you!",
