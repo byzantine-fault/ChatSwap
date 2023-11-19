@@ -193,8 +193,8 @@ const Message = (props: any) => {
 
   return (
     <div
-      className={`group w-full text-gray-800 dark:text-gray-100 border-b border-black/10 dark:border-gray-900/50 ${
-        isUser ? "dark:bg-black" : "bg-gray-50 dark:bg-black"
+      className={`group w-full text-gray-100 border-b border-gray-900/50 ${
+        isUser ? ":bg-black" : "bg-black"
       }`}
     >
       <div className="text-base gap-4 md:gap-6 md:max-w-2xl lg:max-w-xl xl:max-w-3xl flex lg:px-0 m-auto w-full">
@@ -208,21 +208,15 @@ const Message = (props: any) => {
               )}
             </div>
             <div className="text-xs flex items-center justify-center gap-1 absolute left-0 top-2 -ml-4 -translate-x-full group-hover:visible !invisible">
-              <button
-                disabled
-                className="text-gray-300 dark:text-gray-400"
-              ></button>
+              <button disabled className="text-gray-400"></button>
               <span className="flex-grow flex-shrink-0">1 / 1</span>
-              <button
-                disabled
-                className="text-gray-300 dark:text-gray-400"
-              ></button>
+              <button disabled className="text-gray-400"></button>
             </div>
           </div>
           <div className="relative flex w-[calc(100%-50px)] flex-col gap-1 md:gap-3 lg:w-[calc(100%-115px)]">
             <div className="flex flex-grow flex-col gap-3">
               <div className="min-h-20 flex flex-col items-start gap-4 whitespace-pre-wrap break-words">
-                <div className="markdown prose w-full break-words dark:prose-invert dark">
+                <div className="markdown prose w-full break-words prose-invert dark">
                   {!isUser && text === null ? (
                     <Skeleton className="w-3/5 rounded-lg">
                       <div className="h-6 w-2/5 rounded-lg bg-default-200"></div>
