@@ -110,7 +110,7 @@ const Chat = (props: any) => {
 
   return (
     <div className="flex max-w-full flex-1 flex-col relative">
-      <div className="sticky top-0 z-10 flex items-center border-b border-white/20 bg-background pl-1 pt-1 text-gray-200 sm:pl-3 md:hidden">
+      <div className="sticky top-0 z-10 flex items-center border-b border-white/20 bg-black pl-1 pt-1 text-gray-200 sm:pl-3 md:hidden">
         <button
           type="button"
           className="-ml-0.5 -mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-md hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white dark:hover:text-white"
@@ -129,8 +129,8 @@ const Chat = (props: any) => {
           <div className="react-scroll-to-bottom--css-ikyem-79elbk h-full dark:bg-bg-stars z-40">
             <div className="react-scroll-to-bottom--css-ikyem-1n7m0yu">
               {!showEmptyChat && conversation.length > 0 ? (
-                <div className="flex flex-col items-center text-sm bg-background">
-                  <div className="flex w-full items-center justify-center gap-1 border-b border-black/10 bg-gray-50 p-3 text-gray-500 dark:border-gray-900/50 dark:bg-background dark:text-gray-300">
+                <div className="flex flex-col items-center text-sm bg-black">
+                  <div className="flex w-full items-center justify-center gap-1 border-b border-black/10 bg-gray-50 p-3 text-gray-500 dark:border-gray-900/50 dark:bg-black dark:text-gray-300">
                     Model: {selectedModel.name}
                   </div>
                   {conversation.map((message, index) => (
@@ -145,7 +145,7 @@ const Chat = (props: any) => {
                   <div className="flex items-center justify-center gap-2">
                     <div className="relative w-full md:w-1/2 lg:w-1/3 xl:w-1/4">
                       <button
-                        className="relative flex w-full cursor-default flex-col rounded-md border border-black/10 bg-white py-2 pl-3 pr-10 text-left focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 dark:border-white/20 dark:bg-background sm:text-sm align-center"
+                        className="relative flex w-full cursor-default flex-col rounded-md border border-black/10 bg-white py-2 pl-3 pr-10 text-left focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 dark:border-white/20 dark:bg-black sm:text-sm align-center"
                         id="headlessui-listbox-button-:r0:"
                         type="button"
                         aria-haspopup="true"
@@ -176,12 +176,12 @@ const Chat = (props: any) => {
                   </h1>
                 </div>
               ) : null}
-              <div className="flex flex-col items-center text-sm dark:bg-background"></div>
+              <div className="flex flex-col items-center text-sm dark:bg-black"></div>
             </div>
           </div>
         </div>
 
-        <div className="absolute  z-50 bottom-0 left-0 w-full border-t md:border-t-0 dark:border-white/20 md:border-transparent md:dark:border-transparent md:bg-vert-light-gradient bg-white dark:bg-background md:!bg-transparent dark:md:bg-background pt-2">
+        <div className="absolute  z-50 bottom-0 left-0 w-full border-t md:border-t-0 dark:border-white/20 md:border-transparent md:dark:border-transparent md:bg-vert-light-gradient bg-white dark:bg-black md:!bg-transparent dark:md:bg-black pt-2">
           <form className="stretch mx-2 flex flex-row gap-3 last:mb-2 md:mx-4 md:last:mb-6 lg:mx-auto lg:max-w-2xl xl:max-w-3xl">
             <div className="relative flex flex-col h-full flex-1 items-stretch md:flex-col">
               {errorMessage ? (
