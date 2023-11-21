@@ -28,6 +28,8 @@ import approveTrasaction from "@/utils/approveTransaction";
 import checkAllowance from "@/utils/checkAllowance";
 import getQuote from "@/utils/getQuote";
 import { fetchBalance } from "wagmi/actions";
+import { formatEther } from "viem";
+import { useWeb3Modal } from "@web3modal/wagmi/react";
 
 const Message = (props: any) => {
   const { message } = props;
@@ -37,11 +39,15 @@ const Message = (props: any) => {
 
   const { address, isConnected } = useAccount();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [sellToken, setSellToken] = useState(1);
-  const [sellAmount, setSellAmount] = useState(1);
-  const [buyToken, setBuyToken] = useState(2);
-  const [buyAmount, setBuyAmount] = useState(1);
+  const [sellToken, setSellToken] = useState(0);
+  const [sellAmount, setSellAmount] = useState(0);
+  const [buyToken, setBuyToken] = useState(0);
+  const [buyAmount, setBuyAmount] = useState(0);
   const [protocolInfo, setProtocolInfo] = useState<any>();
+  const [gas, setGas] = useState<any>(0);
+  const [btnText, setBtnText] = useState<string>("Approve");
+
+  const { open } = useWeb3Modal();
 
   const toast = useToast();
 
@@ -59,9 +65,10 @@ const Message = (props: any) => {
     }
   }, [text]);
 
-  // useEffect(() => {
-  //   setBuyAmount(0);
-  // }, [sellAmount, sellToken, buyToken]);
+  useEffect(() => {
+    setBuyAmount(0);
+    handleQuote();
+  }, [sellAmount, sellToken, buyToken]);
 
   const { data: balance } = useBalance({
     address: address,
@@ -116,8 +123,6 @@ const Message = (props: any) => {
       "1",
       chain?.id as number
     );
-    console.log(transaction);
-    console.log(transaction.protocols);
     setProtocolInfo(transaction.protocols && transaction.protocols[0][0][0]);
     if (transaction.tx) {
       sendTransaction({
@@ -150,23 +155,21 @@ const Message = (props: any) => {
       //   setIsLoading(false);
       //   return;
       // }
-      const allowance = await checkAllowance(
-        TOKENLIST[sellToken].address,
-        address,
-        chain?.id as number
-      );
-      console.log(allowance);
-      if (allowance?.allowance === "0") {
-        await handleApproval();
-      }
-      handleTransaction();
-      setIsLoading(false);
-      if (isSuccess) {
-        toast({
-          title: "Swapped successfully 🎉",
-          position: "top-right",
-        });
-      }
+
+      handleTransaction().then(() => {
+        setIsLoading(false);
+        if (isSuccess) {
+          toast({
+            title: "Swapped successfully 🎉",
+            position: "top-right",
+          });
+        }
+      });
+    } else {
+      setBtnText("Connect Wallet");
+      open().then(() => {
+        setBtnText("Approve");
+      });
     }
   }
 
@@ -182,12 +185,27 @@ const Message = (props: any) => {
     console.log("quote : ", quote);
     if (quote.toAmount) {
       setBuyAmount(Number(quote.toAmount));
+      setGas(quote.gas);
+      setProtocolInfo(quote.protocols && quote.protocols[0][0][0]);
     } else {
       toast({
         title: quote.description,
         position: "top-right",
       });
     }
+
+    if (!address) return;
+    if (!text) return;
+    const allowance = await checkAllowance(
+      TOKENLIST[sellToken].address,
+      address,
+      chain?.id as number
+    );
+    console.log("allowance : ", allowance);
+    if (allowance?.allowance === "0") {
+      await handleApproval();
+    }
+    setBtnText("Swap");
     setIsLoading(false);
   }
 
@@ -227,7 +245,7 @@ const Message = (props: any) => {
                         <p>{text}</p>
                       ) : (
                         <Card className="max-w-[400px] z-50">
-                          <CardHeader className="flex gap-3">
+                          <CardHeader className="flex gap-3 items-center">
                             <Image
                               alt="nextui logo"
                               height={40}
@@ -235,7 +253,7 @@ const Message = (props: any) => {
                               src="https://avatars.githubusercontent.com/u/86160567?s=200&v=4"
                               width={40}
                             />
-                            <div className="flex flex-col">
+                            <div className="flex flex-col ">
                               {!!protocolInfo ? (
                                 <p className="text-md">{protocolInfo?.name} </p>
                               ) : (
@@ -248,6 +266,7 @@ const Message = (props: any) => {
                             <p> fromToken : {text.fromToken}</p>
                             <p> toToken : {text.toToken}</p>
                             <p> amount : {text.amount}</p>
+                            <p> gas(fee) : {formatEther(gas)}</p>
                           </CardBody>
                           <CardFooter>
                             <Button onClick={handleSwap} fullWidth>
@@ -255,7 +274,7 @@ const Message = (props: any) => {
                                 isLoading ? (
                                   <Spinner />
                                 ) : (
-                                  <p>Swap</p>
+                                  <p>{btnText}</p>
                                 )
                               ) : isLoading ? (
                                 <Spinner />

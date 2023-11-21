@@ -10,7 +10,7 @@ export default async function handler(
   const chainId = req.query.chainId;
   try {
     const response = await fetch(
-      `https://api.1inch.dev/swap/v5.2/${chainId}/quote?src=${src}&dst=${dst}&amount=${amount}`,
+      `https://api.1inch.dev/swap/v5.2/${chainId}/quote?src=${src}&dst=${dst}&amount=${amount}&includeProtocols=true&includeGas=true      `,
       {
         method: "GET",
         headers: {
