@@ -1,4 +1,3 @@
-import { Button, LockSVG } from "@ensdomains/thorin";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
 import { AiOutlineMessage, AiOutlinePlus } from "react-icons/ai";
 import { FiMessageSquare } from "react-icons/fi";
@@ -11,6 +10,12 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import useSendNotification from "@/hooks/useSendNotification";
 import axios from "axios";
+import { LuWallet2 } from "react-icons/lu";
+import {
+  MdBookmarkAdd,
+  MdOutlineAccountCircle,
+  MdOutlineNotificationsActive,
+} from "react-icons/md";
 
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID as string;
 const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN as string;
@@ -19,6 +24,7 @@ const Sidebar = () => {
   const { isConnected } = useAccount();
   const { open, close } = useWeb3Modal();
   const [mount, setMount] = useState(false);
+  const { address: walletAddress } = useAccount();
 
   /** Web3Inbox SDK hooks **/
   const isW3iInitialized = useInitWeb3InboxClient({
@@ -160,52 +166,37 @@ const Sidebar = () => {
           <AiOutlineMessage className="h-4 w-4" />
           Clear conversations
         </a>
-        {/* <a className="flex py-3 px-3 items-center gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm">
-          <AiOutlineUser className="h-4 w-4" />
-          My plan
-        </a> */}
-        {/* <a className="flex py-3 px-3 items-center gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm">
-          <AiOutlineSetting className="h-4 w-4" />
-          Settings
-        </a>
-        <a
-          href="https://help.openai.com/en/collections/3742473-chatgpt"
-          target="_blank"
-          className="flex py-3 px-3 items-center gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm"
-        >
-          <BiLinkExternal className="h-4 w-4" />
-          Get help
-        </a> */}
-        {isSubscribed ? (
-          <Button
-            onClick={handleTestNotification}
-            disabled={!isW3iInitialized}
-            loading={isSending}
-          >
-            {isSending ? "sending..." : " Send notification"}
-          </Button>
-        ) : (
-          <Button
-            onClick={handleSubscribe}
-            loading={isSubscribing}
-            disabled={!Boolean(address) || !Boolean(account)}
-          >
-            {isSubscribing ? "Subscribing..." : "Subscribe"}
-          </Button>
-        )}
-        {/* <div className="flex py-3 px-3 items-center gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm">
-          <MdLogin className="h-4 w-4" />
-          {isConnected ? "Disconnect Wallet" : "Connect Wallat"}
-        </div> */}
-        <div style={{ width: "240px" }}>
-          {mount && isConnected ? (
-            <Button prefix={<LockSVG />} onClick={() => open()}>
-              Disconnect Wallet
-            </Button>
+        {isConnected &&
+          (isSubscribed ? (
+            <a
+              className="flex py-3 px-3 items-center gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm"
+              onClick={handleTestNotification}
+            >
+              <MdOutlineNotificationsActive className="h-4 w-4" />{" "}
+              {isSending ? "sending..." : "Send notification"}
+            </a>
           ) : (
-            <Button prefix={<LockSVG />} onClick={() => open()}>
-              Connect Wallat
-            </Button>
+            <a
+              className="flex py-3 px-3 items-center gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm"
+              onClick={handleSubscribe}
+            >
+              <MdBookmarkAdd className="h-4 w-4" />{" "}
+              {isSubscribing ? "Subscribing..." : "Subscribe to notifications"}
+            </a>
+          ))}
+        <div
+          className=" flex py-3 px-3 items-center gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm"
+          onClick={() => open()}
+        >
+          {isConnected && mount ? (
+            <>
+              <MdOutlineAccountCircle className="h-4 w-4" />
+              My Account
+            </>
+          ) : (
+            <>
+              <LuWallet2 className="h-4 w-4" /> Wallet Connect
+            </>
           )}
         </div>
       </nav>
