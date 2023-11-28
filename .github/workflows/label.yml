@@ -1,22 +1,23 @@
-# This workflow will triage pull requests and apply a label based on the
-# paths that are modified in the pull request.
-#
-# To use this workflow, you will need to set up a .github/labeler.yml
-# file with configuration.  For more information, see:
-# https://github.com/actions/labeler
+# workflow 의 이름
+name: PR labeler
 
-name: Labeler
-on: [pull_request_target]
-
+# 트리거될 이벤트 설정
+on:
+  pull_request:
+    types: [opened]
+    
+# 트리거되었을 때 실행될 job 작성
 jobs:
-  label:
-
+  labeler:
+  	# runner 설정
     runs-on: ubuntu-latest
+    # 리파지토리에 대한 권한 설정
     permissions:
       contents: read
       pull-requests: write
-
     steps:
-    - uses: actions/labeler@v4
-      with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Check Labels
+        id: labeler
+        uses: jimschubert/labeler-action@v1
+        with:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
