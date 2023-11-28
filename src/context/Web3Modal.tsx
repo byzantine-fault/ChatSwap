@@ -9,7 +9,7 @@ const projectId = "484ba4de0a4e19e8c1c8d5b289e9631c";
 // 2. Create wagmiConfig
 const metadata = {
   name: "ChatSwap",
-  description: "ChatSwap",
+  description: "ChatSwap ",
   url: "https://chatswap.vercel.app",
   icons: ["https://avatars.githubusercontent.com/u/37784886"],
 };
